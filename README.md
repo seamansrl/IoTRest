@@ -43,7 +43,7 @@ Esto devolverá la siguiente estructura en formato JSON:
 
 En donde se puede observar que el rele 1 se encuentra en estado CERRADO.
 
-Nota: lo parámetros deben ser pasados siempre en minúscula ya que el sistema es case sensitive
+Nota: los parámetros deben ser pasados siempre en minúscula ya que el sistema es case sensitive
 
 En caso de que se quiera setear a un rele en un estado fijo, o sea no temporizado, se deberá realizar el mismo procedimiento, pero sin indicar un parámetro TIME, o bien especificándolo en 0. 
 
