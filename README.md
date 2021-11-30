@@ -13,8 +13,8 @@ El siguiente proyecto permite controlar 8 reles via IP a través el protocolo HT
 - Placa de 8 Reles
 
 # Datos:
-MAC ADDRESS: DE-AD-BE-EF-FE-ED
-SERIAL SPEED: 9600
+- MAC ADDRESS: DE-AD-BE-EF-FE-ED
+- SERIAL SPEED: 9600
 
 # Uso:
 El sistema de control de barrera cuenta con 8 salidas a través de relés mecánico. 
@@ -22,7 +22,7 @@ Para comandarlos, la placa cuenta con un control TCP-IP con dirección obtenida 
 -	switch
 -	state
 -	time
--	
+
 Donde:
 
 SWITCH, puede tomar valores entre 1 y 8, donde cada valor corresponde a un relé de salida.
