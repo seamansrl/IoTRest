@@ -25,9 +25,9 @@ Para comandarlos, la placa cuenta con un control TCP-IP con dirección obtenida 
 
 Donde:
 
-SWITCH, puede tomar valores entre 1 y 8, donde cada valor corresponde a un relé de salida.
-STATE, puede tomar valores iguales a 0 o 1, donde 0 implica rele abierto y 1 cerrado.
-TIME, Que puede tomar valores entre 1 y 9, correspondiendo cada uno de estos, al tiempo en segundos que se deberá transitar para invertir el estado que se haya indicado. 
+- SWITCH, puede tomar valores entre 1 y 8, donde cada valor corresponde a un relé de salida.
+- STATE, puede tomar valores iguales a 0 o 1, donde 0 implica rele abierto y 1 cerrado.
+- TIME, Que puede tomar valores entre 1 y 9, correspondiendo cada uno de estos, al tiempo en segundos que se deberá transitar para invertir el estado que se haya indicado. 
 
 por ejemplo:
 
