@@ -1,5 +1,6 @@
 #include <SPI.h>
-#include <Ethernet2.h>
+#include <Ethernet.h> // PARA W5100 DESCOMENTAR Y COMENTAR EL DE ABAJO 
+//#include <Ethernet2.h> // PARA W5500 DESCOMENTAR Y COMENTAR EL DE ARRIBA 
 
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
@@ -9,10 +10,10 @@ int timers[] =   {-1, -1, -1, -1, -1, -1, -1, -1, -1};
 int states[] =   {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // VALORES PARA IP FIJA
-IPAddress ip(192, 168, 1, 2);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress dnServer(192, 168, 1, 1);
-IPAddress gateway(192, 168, 1, 1);
+IPAddress ip(10, 0, 3, 100);
+IPAddress subnet(255, 255, 0, 0);
+IPAddress dnServer(8, 8, 8, 8);
+IPAddress gateway(10, 0, 0, 1);
 
 // INICIA SERVER
 EthernetServer server(80);
@@ -20,6 +21,7 @@ EthernetServer server(80);
 void setup() 
 {
   // DEFINE GPIO
+  pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
@@ -29,6 +31,7 @@ void setup()
   pinMode(9, OUTPUT);
 
   // AJUSTA LOS GPIO A CERO
+  digitalWrite(2,HIGH);
   digitalWrite(3,HIGH);
   digitalWrite(4,HIGH);
   digitalWrite(5,HIGH);
@@ -40,17 +43,17 @@ void setup()
   // INICIA SERIAL
   Serial.begin(9600);
   
-  // INICIA RED
-  Ethernet.begin(mac);
+  // EN CASO QUE SE REQUIERA IP FIJA DESCOMENTAR Y COMENTAR LA DE ABAJO
+  Ethernet.begin(mac, ip, dnServer, gateway, subnet);
 
-  // EN CASO QUE SE REQUIERA IP FIJA DESCOMENTAR
-  //Ethernet.begin(mac, ip, dnServer, gateway, subnet);
+  // PARA TOMAR POR DHCP DESCOMENTAR ESTA LINEA Y COMENTAR LA DE ARRIBA
+  //Ethernet.begin(mac);
   
   // INICIA SERVIDOR HTTP
   server.begin();
 
   // INDICA POR SERIAL LA IP OBTENIDA
-  Serial.print("server is at ");
+  Serial.print("IP: ");
   Serial.println(Ethernet.localIP());
 }
 
@@ -107,7 +110,9 @@ void loop()
             RELE = 6;
           else if(cadena.substring(switchString, switchString + 8)=="switch=7")
             RELE = 7;
-
+          else if(cadena.substring(switchString, switchString + 8)=="switch=8")
+            RELE = 8;
+            
           if(cadena.substring(stateString, stateString + 7)=="state=0")
             STATE = 0;
           else if(cadena.substring(stateString, stateString + 7)=="state=1")
@@ -171,11 +176,11 @@ void loop()
     // Activo el pin segun lo planeado
     if (states[thisPin] == 0)
     {
-      digitalWrite(thisPin + 2, HIGH);
+      digitalWrite(thisPin + 1, HIGH);
     }
     else
     {
-      digitalWrite(thisPin + 2, LOW);
+      digitalWrite(thisPin + 1, LOW);
     } 
   }
 
