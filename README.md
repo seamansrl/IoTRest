@@ -6,6 +6,7 @@ El siguiente proyecto permite controlar 8 reles via IP a través el protocolo HT
 
 ![Esquema](Esquema.png)
 
+![Final](IMG_0560.jpg)
 
 # Materiales:
 - Arduino UNO o MEGA
