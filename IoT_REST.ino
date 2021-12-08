@@ -6,6 +6,8 @@ byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
 
+bool ConectionStarted = false;
+
 int timers[] =   {-1, -1, -1, -1, -1, -1, -1, -1, -1};
 int states[] =   {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -17,6 +19,32 @@ IPAddress gateway(10, 0, 0, 1);
 
 // INICIA SERVER
 EthernetServer server(80);
+
+void Connect()
+{
+  // EN CASO QUE SE REQUIERA IP FIJA DESCOMENTAR Y COMENTAR LA DE ABAJO
+  Ethernet.begin(mac, ip, dnServer, gateway, subnet);
+
+  // PARA TOMAR POR DHCP DESCOMENTAR ESTA LINEA Y COMENTAR LA DE ARRIBA
+  //Ethernet.begin(mac);
+
+  // AJUSTO EL INTERVALO DE LAS RETRANSMICIONES A 200ms
+  Ethernet.setRetransmissionTimeout(200);
+
+  // AJUSTO LOS REINTENTOS DE RETRANSMICION A SOLO 5 O SEA 1 SEGUNDO MAXIMO EN INTENTOS DE CONEXION
+  Ethernet.setRetransmissionCount(5);
+  
+  // INICIA SERVIDOR HTTP
+  server.begin();
+
+  if (ConectionStarted == false)
+  {
+    // INDICA POR SERIAL LA IP OBTENIDA
+    Serial.print("IP: ");
+    Serial.println(Ethernet.localIP());
+    ConectionStarted = true;
+  }
+}
 
 void setup() 
 {
@@ -42,38 +70,34 @@ void setup()
 
   // INICIA SERIAL
   Serial.begin(9600);
-  
-  // EN CASO QUE SE REQUIERA IP FIJA DESCOMENTAR Y COMENTAR LA DE ABAJO
-  Ethernet.begin(mac, ip, dnServer, gateway, subnet);
-
-  // PARA TOMAR POR DHCP DESCOMENTAR ESTA LINEA Y COMENTAR LA DE ARRIBA
-  //Ethernet.begin(mac);
-  
-  // INICIA SERVIDOR HTTP
-  server.begin();
-
-  // INDICA POR SERIAL LA IP OBTENIDA
-  Serial.print("IP: ");
-  Serial.println(Ethernet.localIP());
 }
 
 
 void loop() 
 {
-  // LEE PUERTO ETHERNET
+  // REINICIO LA RED EN CADA LOOP POR SI LA CONEXION SE CAE, SE REINICIE SOLA
+  Connect();
+  
   EthernetClient client = server.available();
+  client.setTimeout(100);
   
   // SI HAY UNA SOLICITUD EJECUTA ACCIONES
   if (client) 
   {
+    Serial.println("Conexion entrante");
+    
     String cadena="";
     boolean currentLineIsBlank = true;
     int RELE = 0;
     int TIME = 0;
     int STATE = 0;
-      
+    int TimeOut = 300;  
+    int Ciclos = 0;
+       
     while (client.connected()) 
     {
+      Ciclos++;
+      
       RELE = 0;
       TIME = 0;
       STATE = 0;
@@ -82,7 +106,7 @@ void loop()
       {
         char c = client.read();
         cadena.concat(c);
-        
+
         if (c == '\n' && currentLineIsBlank)
         {
           client.println("HTTP/1.1 200 OK");
@@ -112,7 +136,7 @@ void loop()
             RELE = 7;
           else if(cadena.substring(switchString, switchString + 8)=="switch=8")
             RELE = 8;
-            
+
           if(cadena.substring(stateString, stateString + 7)=="state=0")
             STATE = 0;
           else if(cadena.substring(stateString, stateString + 7)=="state=1")
@@ -148,16 +172,29 @@ void loop()
             ToResponse = ToResponse + "{\"rele\":\"" + String(thisPin) + "\", \"state\":\"" + String(states[thisPin]) + "\" },";
           }
           ToResponse = ToResponse + "{\"rele\":\"\", \"state\":\"\" }]}";
-          
+
+          Serial.println("Devolviendo estados");
           client.println(ToResponse);
           client.println();
           break;
         }
       }
+
+      if (TimeOut > 0)
+        TimeOut = TimeOut - 1;
+      else
+      {
+        Serial.println("Tiempo agotado");
+        break;
+      }
     }
     client.stop();
-  }
 
+    Serial.println("Fin de conexion");
+
+    delay(100);
+  }
+ 
   for (int thisPin = 0; thisPin <= 8; thisPin++) 
   {
     // reduzco el timer siempre
